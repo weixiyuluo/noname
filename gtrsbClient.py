@@ -1,18 +1,21 @@
 # -*- codeing = utf-8 -*-
-# @Time : 2024/2/19 10:09
+# @Time : 2024/3/5 16:39
 # @Author : 李国锋
-# @File: client.py
+# @File: gtrsbClient.py
 # @Softerware:
 # -*- codeing = utf-8 -*-
-# @Time : 2024/1/29 15:16
+# @Time : 2024/3/5 14:12
 # @Author : 李国锋
-# @File: newClient.py
+# @File: cifar_client.py
 # @Softerware:
+# -*- codeing = utf-8 -*-
+
 import random
 import time
 import torch
 import numpy as np
 import torchvision
+from torchvision import transforms
 from Model import *  #自己写的模型
 from torch import nn
 import torch.nn.functional  as F
@@ -30,15 +33,15 @@ torch.cuda.manual_seed(seed)
 
 
 
-class Client():
+class GTRSBClient():
 
-    def __init__(self, clientid=0,initmodel = None,lr=0.001):
+    def __init__(self, clientid=0,initmodel = None,lr=0.01):
         self.batchsize = 128
 
         # 创建网络模型
-        self.model_my = CovModel().to(device)
+        self.model_my = GTRSBmodel().to(device)
         if initmodel is not None:
-            parms = CovModel().state_dict().copy()
+            parms = GTRSBmodel().state_dict().copy()
             for key,newvalue in zip(parms.keys(),initmodel):
                 parms[key] = torch.from_numpy(newvalue)
             self.model_my.load_state_dict(parms)
@@ -48,23 +51,26 @@ class Client():
         self.loss_fnc =  F.cross_entropy  #torch.nn.functional.cross_entropy()
         __learning_rate = lr
         self.optimizer = torch.optim.SGD(self.model_my.parameters(), lr=__learning_rate)#,momentum=0.9
-        #self.optimizer = torch.optim.Adam(self.model_my.parameters(), lr=__learning_rate)  #
         self.id = clientid
+        self.__train_data = torchvision.datasets.GTSRB(root="../data", split="train",
+                                                    transform=transforms.Compose([
+                                                        transforms.Resize((30,30)),  #先resize
+                                                        transforms.ToTensor(),
+                                                        transforms.Normalize((0.5, 0.5, 0.5),
+                                                                             (0.5, 0.5, 0.5))
+                                                    ]),
+                                                    download=True)  # 设为False防止出现Files already downloaded and verified
         # self.epsilon = 2  # 差分隐私预算
         # self.delta = 0.00001
         # self.sigma = np.sqrt(2 * (np.log(1.25 / self.delta))) / self.epsilon
 
+
     # 训练
     def train(self, globalmodel = None, epoch=1,):
-        __train_data = torchvision.datasets.MNIST(root="../data/MNIST", train=True,
-                                                       transform=torchvision.transforms.Compose([
-                                                           torchvision.transforms.ToTensor(),
-                                                           torchvision.transforms.Normalize((0.1307,), (0.3081,))
-                                                       ]),
-                                                       download=True)  # root 是压缩包.gz存放的路径
-        train_data_size = len(__train_data)  # 60000
-        __train_loader = DataLoader(__train_data, batch_size=self.batchsize, shuffle=True, drop_last=True)
+        train_data_size = len(self.__train_data)  # 60000
+        __train_loader = DataLoader(self.__train_data, batch_size=self.batchsize, shuffle=True)
 
+        # print(len(__train_loader))
         if globalmodel is not None:
             parms = self.model_my.state_dict().copy()
             for key, newvalue in zip(parms.keys(), globalmodel):
@@ -76,9 +82,6 @@ class Client():
             exit(0)
         # T1 = time.time()
         for i in range(epoch):
-            # model_len  = sum(p.numel() for p in self.model_my.parameters() if p.requires_grad)
-            # global_grad = np.zeros(model_len)
-            # layers = np.zeros(0)
             total_acc = 0  # 每一个round的准确率
             num = 0
             for data in __train_loader:
@@ -89,13 +92,12 @@ class Client():
                 self.optimizer.zero_grad()
                 loss = self.loss_fnc(output, target)
                 loss.backward()
-                torch.nn.utils.clip_grad_norm_(self.model_my.parameters(), max_norm=5)
                 self.optimizer.step()
                 pre_output = output.argmax(1)
                 accuracy = (pre_output == target).sum()
                 total_acc = total_acc + accuracy
                 num += 1
-                if num > 80:  # or  1 when train 1000 rounds
+                if num > 30:
                     break
 
                 # for name, param in self.model_my.named_parameters():  # self.model_my.model._modules.
@@ -120,24 +122,35 @@ class Client():
 
 
     def myTest(self, model, signal = 0):
+        """
+        signal = 1 代表输入一个np数组， = 0 代表输入一个模型
+        """
         if(signal == 1):
             parms = self.model_my.state_dict().copy()
             for key, newvalue in zip(parms.keys(), model):
                 parms[key] = torch.from_numpy(newvalue)
-            tesrmodel = CovModel().to(device)
+            tesrmodel = GTRSBmodel().to(device)
             tesrmodel.load_state_dict(parms)
         else:
             tesrmodel = model
-        __test_data = torchvision.datasets.MNIST("../data/MNIST", train=False,
-                                               transform=torchvision.transforms.Compose([
-                                                   torchvision.transforms.ToTensor(),
-                                                   torchvision.transforms.Normalize((0.1307,), (0.3081,))
+        __test_data = torchvision.datasets.GTSRB("../data", split="test",
+                                               transform=transforms.Compose([
+                                                   transforms.Resize((30, 30)),
+                                                   transforms.ToTensor(),
+                                                   transforms.Normalize((0.5,0.5,0.5), (0.5,0.5,0.5)),
+
                                                ]),
-                                               download=True)
+                                               download=True)    #transforms.GaussianBlur(3),  #高斯模糊
+
+        # print(len(self.__train_data))
+        # print(len(__test_data))
         __test_load = DataLoader(__test_data, batch_size=128)
         test_data_size = len(__test_data)
         tol_acc = 0
-        tesrmodel.eval()
+        try:
+            tesrmodel.eval()
+        except AttributeError:
+            print("please check signal or input model type")
         for data in __test_load:
             imgs, label = data
             imgs = imgs.to(device)
@@ -154,24 +167,21 @@ class Client():
         #         print(param.data)
 
 
+
+
+
 if __name__ == '__main__':
 
-    m = CovModel().to(device)
+    m = GTRSBmodel()
     model = []
     par = m.state_dict().copy()
     for key in par.keys():
         model.append(par[key].cpu().numpy())
+        print(par[key].cpu().numpy().shape)
     model = np.array(model,dtype=object)
-    c = Client(initmodel=model)
-    grad = c.train(globalmodel=model,epoch=1)
-    print(type(grad[0][0][0][0][0]))
-    # print()
-    # newmodel = model + grad
-    # c.myTest(model,signal=1)
-    #
-    # c.train(model)
-
-
+    c = GTRSBClient(initmodel=model,lr=0.001)
+    c.train(model,10)
+    c.myTest(c.model_my)
 
 
 
