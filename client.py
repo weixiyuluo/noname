@@ -1,13 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/2/19 10:09
-# @Author : 李国锋
-# @File: client.py
-# @Softerware:
-# -*- codeing = utf-8 -*-
-# @Time : 2024/1/29 15:16
-# @Author : 李国锋
-# @File: newClient.py
-# @Softerware:
+
 import random
 import time
 import torch
