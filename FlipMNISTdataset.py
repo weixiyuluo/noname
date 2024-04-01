@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/2/19 11:32
-# @Author : 李国锋
-# @File: FlipMNISTdataset.py
-# @Softerware:
+
 import os
 
 import numpy as np
