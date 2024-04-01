@@ -1,8 +1,4 @@
-# # -*- codeing = utf-8 -*-
-# # @Time : 2024/3/5 14:35
-# # @Author : 李国锋
-# # @File: miniMNISTset.py
-# # @Softerware:
+
 # import torch
 # from torchvision import datasets, transforms
 # from torch.utils.data import DataLoader, Dataset
