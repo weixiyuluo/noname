@@ -8,7 +8,7 @@ class CovModel(nn.Module):
         super(CovModel, self).__init__()
         self.model = nn.Sequential(
             nn.Conv2d(in_channels=1,out_channels=10,kernel_size=9,stride=1),
-            # nn.BatchNorm2d(10),    #正则化层有均值和方差; 上传的时候没法上传，恢复的时候无法恢复
+            # nn.BatchNorm2d(10),    
             nn.ReLU(),
             nn.Conv2d(in_channels=10,out_channels=20,kernel_size=9,stride=1),
             nn.Flatten(),
