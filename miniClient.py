@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/3/8 20:43
-# @Author : 李国锋
-# @File: miniClient.py
-# @Softerware:
+
 import random
 import time
 import torch
