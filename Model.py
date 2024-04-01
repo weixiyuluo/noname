@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/2/19 10:09
-# @Author : 李国锋
-# @File: Model.py
-# @Softerware:
+
 import torch
 from torch import nn
 
