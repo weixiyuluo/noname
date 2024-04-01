@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/2/19 20:02
-# @Author : 李国锋
-# @File: backdoorMNISTset.py
-# @Softerware:
+
 #这个DatasetBD主要还是应用于下载dataset的时候没有进行totensor转换，而是直接将img变为numpy类型再进行投毒，
 #最后完成totensor转换并且合成一个dataset，后面可以直接变为dataloader
 
