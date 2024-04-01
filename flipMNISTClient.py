@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/3/4 15:09
-# @Author : 李国锋
-# @File: flipMNISTClient.py
-# @Softerware:
+
 
 import random
 import time
