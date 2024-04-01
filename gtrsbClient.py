@@ -1,14 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/3/5 16:39
-# @Author : 李国锋
-# @File: gtrsbClient.py
-# @Softerware:
-# -*- codeing = utf-8 -*-
-# @Time : 2024/3/5 14:12
-# @Author : 李国锋
-# @File: cifar_client.py
-# @Softerware:
-# -*- codeing = utf-8 -*-
+
 
 import random
 import time
