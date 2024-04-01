@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/2/21 21:53
-# @Author : 李国锋
-# @File: Server.py
-# @Softerware:
+
 
 import os
 import random
