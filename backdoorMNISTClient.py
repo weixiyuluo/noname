@@ -1,8 +1,4 @@
-# -*- codeing = utf-8 -*-
-# @Time : 2024/3/4 18:47
-# @Author : 李国锋
-# @File: backdoorMNISTClient.py
-# @Softerware:
+
 
 import random
 import time
