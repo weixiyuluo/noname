@@ -390,7 +390,7 @@ class Rserver:
                     org_grad = np.load(f"./grad_history/cilent{id}_grad_{round}round.npy", allow_pickle=True)
                     org_grad = org_grad.reshape((-1,1))
                     _= rec_grad + org_grad
-                    _ = np.clip(_, a_min = -threshold*0.001, a_max =threshold*0.001)
+                    _ = np.clip(_, a_min = -threshold, a_max =threshold)
                     rev_grad.update({id:_})
                     # rev_grad *= w[id]   #w是服务器记录的客户端的数据集大小
                     g +=rev_grad[id]
@@ -478,7 +478,7 @@ if __name__ =='__main__':
     #阈值threshold = 0.001（客户端的学习率）*100（客户端数量）*预期为客户端设定的阈值（1） = 0.1
     # NOTICE! update the vector pairs also lead to accuracy do
     # 此外，以部分数字（例如50）当作更新向量对的周期会导致之后的模型准确率下降
-    s.eraseing(id=5,nowround=100,lr=0.1*0.001,threshold=10,updates_round=21)  #学习率最好和训练时相同,或者更小  #先将放大的缩小
+    s.eraseing(id=5,nowround=100,lr=0.1*0.001,threshold=1,updates_round=21)  #学习率最好和训练时相同,或者更小  #先将放大的缩小
 
 
 
