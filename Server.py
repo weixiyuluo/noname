@@ -16,6 +16,13 @@ from miniClient import miniClient
 
 
 
+# seed = 42
+seed = 3047
+# seed = 19520311
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
