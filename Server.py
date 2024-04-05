@@ -475,8 +475,6 @@ if __name__ =='__main__':
     #
     # print("train time is:", T2 - T1)
 
-    #阈值threshold = 0.001（客户端的学习率）*100（客户端数量）*预期为客户端设定的阈值（1） = 0.1
-    # NOTICE! update the vector pairs also lead to accuracy do
     # 此外，以部分数字（例如50）当作更新向量对的周期会导致之后的模型准确率下降
     s.eraseing(id=5,nowround=100,lr=0.1*0.001,threshold=1,updates_round=21)  #学习率最好和训练时相同,或者更小  #先将放大的缩小
 
