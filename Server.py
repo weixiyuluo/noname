@@ -259,7 +259,7 @@ class Rserver:
         # print(self.aggregation)
         self.setGrad()
         self.optimizer.step()
-        # return self.search[1].myTest(self.globalmodel)
+        return self.search[1].myTest(self.globalmodel)
 
 
     def model_to_numpy(self,model=None):
@@ -274,7 +274,7 @@ class Rserver:
         return params
 
 
-    def num2model(self,modelparam):  #      #matlab命名格式
+    def num2model(self,modelparam):  #      
         """
          (n,1)numpy-->tensor-->model，将输入形状是（n,1）的numpy数组放到模型参数中
         """
@@ -307,6 +307,7 @@ class Rserver:
         try:
             left_inv = np.linalg.inv(left)
         except np.linalg.LinAlgError:    #求不了逆， left_inv是奇异矩阵
+            print("error input, is not able to compute the inv")
             return 0
         grad_T = np.transpose(grad)
         right_up = grad_T.dot(v)
@@ -402,7 +403,7 @@ class Rserver:
                 weight_hat = weight_hat - lr * g      #与训练相同的学习率，或者再小一点的lr
                 self.num2model(weight_hat)
 
-                # acc[i] = self.search[1].myTest(self.globalmodel)
+                acc[i] = self.search[1].myTest(self.globalmodel)
 
                 # self.testBackdoor()
                 # self.get_model()
@@ -424,6 +425,7 @@ class Rserver:
                         grad_vector = np.concatenate((grad_two - org_grad, grad_one - org_grad), axis=1)
                         G.update({id: grad_vector})
                 # 结束更新
+            
             self.num2model(weight_hat)
             self.get_model()
             T2 = time.time()
@@ -449,23 +451,23 @@ class Rserver:
 if __name__ =='__main__':
     # import keyboard   #测试用
     s = Rserver()
-    for i in range(1,5):
+    for i in range(100):
         s.connectClient(i)
 
     #
-    s.connectClient(5,2)
-    # acc = np.zeros(101)
-
-    # T1 = time.time()
-    # for r in range(100):
-    #     s.update(r)
-    #     if r == 97:
-    #         T2 = time.time()
+    # s.connectClient(61,2)
+    acc = np.zeros(101)
+    #
+    T1 = time.time()
+    for r in range(101):
+        # s.update(r)
+        # if r == 97:
+        #     T2 = time.time()
     #
     #
-    # #     acc[r] = s.update(r)
-    # #     if r == 2:
-    # #         s.connectClient(5,r)
+        acc[r] = s.update(r)
+        if r == 2:
+            s.connectClient(100,r)
     # #         # s.connectBackdoorClient(5, r)
     #
     # #     # if keyboard.is_pressed('q'):
@@ -475,8 +477,13 @@ if __name__ =='__main__':
     #
     # print("train time is:", T2 - T1)
 
+    #阈值threshold = 0.001（客户端的学习率）*100（预期为客户端设定的阈值）
+    # NOTICE! update the vector pairs also lead to accuracy do
     # 此外，以部分数字（例如50）当作更新向量对的周期会导致之后的模型准确率下降
-    s.eraseing(id=5,nowround=100,lr=0.1*0.001,threshold=1,updates_round=21)  #学习率最好和训练时相同,或者更小  #先将放大的缩小
+    s.eraseing(id=100,nowround=100,lr=0.1*0.001,threshold=1,updates_round=21)  #学习率最好和训练时相同,或者更小  #先将放大的缩小
+
+
+
 
 
 
